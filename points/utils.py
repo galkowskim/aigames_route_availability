@@ -2,6 +2,7 @@ import folium
 import numpy as np
 from scipy import sparse
 from math import sqrt
+import pandas as pd
 
 BOUNDARIES = [(21.9430, -67.5), (55.7765, -135)]
 VIL_THRESHOLD_COLORS = [
@@ -53,6 +54,11 @@ def load_and_show_vil(file_path: str, points) -> folium.Map:
 def distance(coords_1, coords_2):
     return sqrt((coords_1[0] - coords_2[0]) ** 2 + (coords_1[1] - coords_2[1]) ** 2)
 
+def distance_fromlist(lst):
+    all_distance = 0
+    for i in range(len(lst) - 1):
+        all_distance += distance(lst[i], lst[i + 1])
+    return all_distance
 
 def get_route(coords_1, coords_2, n):
     return [(coords_1[0] + (coords_2[0] - coords_1[0]) * i / n, coords_1[1] + (coords_2[1] - coords_1[1]) * i / n) for i
