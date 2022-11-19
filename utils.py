@@ -1,7 +1,10 @@
 import math
 import pandas as pd
+import numpy as np
 from tqdm import tqdm
+from scipy import sparse
 
+from typing import Tuple
 # (21.9430, -67.5), (55.7765, -135)
 # difference on each coordinate (33.8335, 67.5)
 # shape 2566x5120
@@ -21,7 +24,7 @@ delta_longitude = BOUNDARIES[1][1] - BOUNDARIES[0][1]
 shape = (2565, 5119)  # 2566, 5120
 
 
-def coordinates_to_idx(latitude: int, longitude: int) -> tuple[int]:
+def coordinates_to_idx(latitude: int, longitude: int) -> Tuple[int]:
     prop_latitude = (latitude - BOUNDARIES[0][0]) / delta_latitude
     prop_longitude = (longitude - BOUNDARIES[0][1]) / delta_longitude
 
