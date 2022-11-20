@@ -160,3 +160,4 @@ cython_debug/
 .idea/
 
 data/VIL_merc/
+results.csv
