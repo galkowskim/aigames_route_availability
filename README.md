@@ -13,7 +13,7 @@
 - **data** - main folder to store data and model
   - **statuses** - folder containg raw data (excluding weather data)
     - **preprocessed** - output of preprocessing scripts
-
+  - **VIL_merc** - folder containing weather data
 ------------------
 
 ## Data preparation
