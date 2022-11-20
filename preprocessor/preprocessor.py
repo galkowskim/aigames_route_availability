@@ -9,14 +9,23 @@ class Preprocessor:
     def __init__(self, df) -> None:
         self.df = df
 
-    def preprocess_data(self) -> pd.DataFrame:
+    def preprocess_train(self) -> pd.DataFrame:
             self._encode_status()
             self._encode_route_type()
-            self._one_hot_encode_airports()
+            # self._one_hot_encode_airports()
             self._apply_feature_engineering()
             self._extract_info_from_date()
             self._drop_irrelevant_features(['waypoints', 'timestamp', 'route_id', 'timestamp_date', 'observation_id'])
-            self._drop_irrelevant_features([f'waypoint_{idx}' for idx in range(1, 21)])
+            # self._drop_irrelevant_features([f'waypoint_{idx}' for idx in range(1, 21)])
+            return self.df
+
+    def preprocess_test(self) -> pd.DataFrame:
+            self._encode_route_type()
+            # self._one_hot_encode_airports()
+            self._apply_feature_engineering()
+            self._extract_info_from_date()
+            self._drop_irrelevant_features(['waypoints', 'timestamp', 'route_id', 'timestamp_date'])
+            # self._drop_irrelevant_features([f'waypoint_{idx}' for idx in range(1, 21)])
             return self.df
             
     def _encode_status(self) -> None:
@@ -25,15 +34,16 @@ class Preprocessor:
     def _encode_route_type(self) -> None:
         self.df['route_type'] = np.where(self.df['route_type'] == 'ARRIVAL', 1, 0)
     
-    def _one_hot_encode_airports(self) -> None:
-        one_hot = pd.get_dummies(self.df['airport'])
-        self.df.drop('airport', axis = 1, inplace=True)
-        self.df = self.df.join(one_hot)
+    # def _one_hot_encode_airports(self) -> None:
+    #     one_hot = pd.get_dummies(self.df['airport'])
+    #     self.df.drop('airport', axis = 1, inplace=True)
+    #     self.df = self.df.join(one_hot)
 
     def _apply_feature_engineering(self) -> None:
         self.df['distance'] = self.df['waypoints'].apply(lambda x: self.distance_fromlist(eval(x)))
         self.df['no_of_waypoints'] = self.df['waypoints'].apply(lambda x: len(eval(x)))
-        self.df['dayoftheweek'] = pd.to_datetime(self.df['timestamp_date'], format='%Y-%d-%m').dt.dayofweek
+        self.df['dayoftheweek'] = pd.to_datetime(self.df['timestamp_date']).dt.dayofweek
+        
         self.df['waypoints'] = self.df['waypoints'].apply(lambda x: ast.literal_eval(x))
         self.df['north'] = np.where((self.df['route_type']== 0) & (self.df.waypoints.apply(lambda x: x[1][0] - x[0][0]) >= 0), 1,
                             np.where((self.df['route_type']==1) & (self.df.waypoints.apply(lambda x: x[-1][0] - x[-2][0]) >= 0),1,0))
