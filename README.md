@@ -18,7 +18,7 @@
 
 ## Data preparation
 
-
+Data prepraration modules available in preprocessor.py.
 
 
 ## Model training
