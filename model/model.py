@@ -41,11 +41,11 @@ class Model:
         X_test = X_test[order]
         return pd.Series(self.model.predict(X_test))
 
-    def predict_and_save(self, X_test: pd.DataFrame) -> pd.Series:
-        obs = X_test[['observation_id']]
-        X_test = X_test.drop('observation_id', axis=1)
-        X_test = X_test[order]
-        results = pd.Series(self.model.predict(X_test))
+    def predict_and_save(self, x_test: pd.DataFrame) -> pd.Series:
+        obs = x_test[['observation_id']]
+        x_test = x_test.drop('observation_id', axis=1)
+        x_test = x_test[order]
+        results = pd.Series(self.model.predict(x_test))
         obs['results'] = results
         obs['results'] = np.where(obs['results'] == 1, 'OPEN', 'CLOSED')
         obs.rename({'results': 'status'}, inplace=True)
@@ -55,6 +55,10 @@ class Model:
 
     def predict_sample(self, sample: pd.DataFrame) -> pd.Series:
         sample = sample[order]
+        for col in ["route_type", "timestamp_hour","distance", "no_of_waypoints",
+                    "dayoftheweek", "north", "west", "timestamp_month", "timestamp_day"]:
+            sample[col] = sample[col].astype(np.int)
+
         return pd.Series(self.model.predict(sample))
 
     def onehot(self, X_test):
