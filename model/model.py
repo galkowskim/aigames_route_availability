@@ -13,8 +13,8 @@ order = ['airport_KDFW', 'airport_KIAH', 'airport_KSEA', 'route_type',
 
 class Model:
 
-    def __init__(self) -> None:
-        self.model = lightgbm.LGBMClassifier()
+    def __init__(self, *args, **kwargs) -> None:
+        self.model = lightgbm.LGBMClassifier(*args, **kwargs)
         self.ohe = OneHotEncoder()
         self.col = None
 
@@ -48,8 +48,9 @@ class Model:
         results = pd.Series(self.model.predict(x_test))
         obs['results'] = results
         obs['results'] = np.where(obs['results'] == 1, 'OPEN', 'CLOSED')
-        obs.rename({'results': 'status'}, inplace=True)
         print(f'Saving results of testset into: results.csv')
+        obs.rename(columns={"results":'status'}, inplace=True)
+        obs.drop_duplicates(subset=['observation_id'], inplace=True)
         obs.to_csv('results.csv', index=False)
         return obs
 

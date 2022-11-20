@@ -19,24 +19,23 @@ preprocessor_test = Preprocessor(test)
 train = preprocessor_train.preprocess_train()
 test = preprocessor_test.preprocess_test()
 
-model = Model()
+model = Model(learning_rate=0.1)
 y_train = train['status']
 X_train = train.drop(['status'], axis=1)
 
-X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, train_size=0.8, random_state=420)
-
+# X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, train_size=0.8, random_state=420)
 model.train(X_train, y_train)
 
 y_pred_train = model.predict(X_train)
-y_pred_val = model.predict(X_val)
+# y_pred_val = model.predict(X_val)
 
 print(f'Training data:')
 model.calculate_f1(y_pred_train, y_train)
 print()
 
-print(f'Validation data:')
-model.calculate_f1(y_pred_val, y_val)
-print()
+# print(f'Validation data:')
+# model.calculate_f1(y_pred_val, y_val)
+# print()
 
 # Save csv output into results.csv
 test = model.onehot(test)
