@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 from typing import List, Tuple
@@ -27,7 +29,25 @@ class Preprocessor:
             self._drop_irrelevant_features(['waypoints', 'timestamp', 'route_id', 'timestamp_date'])
             # self._drop_irrelevant_features([f'waypoint_{idx}' for idx in range(1, 21)])
             return self.df
-            
+
+    def preprocess_sample(self) -> pd.DataFrame:
+        file_path = Path(__file__).resolve()
+        file_path = file_path.parents[1] / 'data' / 'statuses' / 'route_definitions.csv'
+        self.df = pd.merge(self.df, pd.read_csv(file_path))
+        self._encode_route_type()
+        self._apply_feature_engineering()
+        self._extract_info_from_date()
+        self._drop_irrelevant_features(['waypoints', 'route_id', 'timestamp_date'])
+        return pd.DataFrame(self.df.iloc[0]).T # doesnt matter if arrival or departure
+
+    def preprocess_sample_dont_drop_col(self):
+        file_path = Path(__file__).resolve()
+        file_path = file_path.parents[1] / 'data' / 'statuses' / 'route_definitions.csv'
+        self.df = pd.merge(self.df, pd.read_csv(file_path))
+        self._encode_route_type()
+        self._apply_feature_engineering()
+        self._extract_info_from_date()
+        return pd.DataFrame(self.df.iloc[0]).T  # doesnt matter if arrival or departure
     def _encode_status(self) -> None:
         self.df['status'] = np.where(self.df['status'] == "OPEN", 1, 0)
     

@@ -6,6 +6,10 @@ from sklearn.metrics import f1_score
 from typing import Tuple
 from sklearn.preprocessing import OneHotEncoder
 
+order = ['airport_KDFW', 'airport_KIAH', 'airport_KSEA', 'route_type',
+       'timestamp_hour', 'distance', 'no_of_waypoints', 'dayoftheweek',
+       'north', 'west', 'timestamp_month', 'timestamp_day']
+
 class Model:
 
     def __init__(self) -> None:
@@ -23,20 +27,21 @@ class Model:
         self.col = self.ohe.get_feature_names_out(['airport'])
         X_train = pd.DataFrame(X_train, columns=self.col, index=index)
         X_train = X_train.join(drop)
-
-        print(X_train.columns)
-        print(len(X_train.columns))
+        X_train = X_train[order]
         self.model.fit(X_train, y_train)
     
     def predict(self, X_test: pd.DataFrame) -> pd.Series:
         obs = X_test[['observation_id']]
         X_test = X_test.drop('observation_id', axis=1)
+        X_test = X_test[order]
         results = pd.Series(self.model.predict(X_test))
-        print(results)
         obs['results'] = results
         obs.to_csv('results.csv', index=False)
         return obs
-        
+
+    def predict_sample(self, sample: pd.DataFrame) -> pd.Series:
+        sample = sample[order]
+        return pd.Series(self.model.predict(sample))
 
     def onehot(self, X_test):
         index = X_test.index
