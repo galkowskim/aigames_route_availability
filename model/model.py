@@ -1,6 +1,5 @@
 import pandas as pd
-# from xgboost import XGBoostClassifier # XD?
-from sklearn.tree import DecisionTreeClassifier
+import lightgbm
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
 from typing import Tuple
@@ -9,11 +8,12 @@ from sklearn.preprocessing import OneHotEncoder
 class Model:
 
     def __init__(self) -> None:
-        self.model = DecisionTreeClassifier()
+        # self.model = xgboost.XGBClassifier()
+        self.model = lightgbm.LGBMClassifier()
         self.ohe = OneHotEncoder()
         self.col = None
 
-    def model_train_test_split(self, X: pd.DataFrame, y: pd.DataFrame, test_size: float = 0.2, random_state: int = 420) -> Tuple[pd.DataFrame,pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    def model_train_test_split(self, X: pd.DataFrame, y: pd.DataFrame, test_size: float = 0.2, random_state: int = 420) -> Tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
         return train_test_split(X, y, test_size, random_state)
 
     def train(self, X_train: pd.DataFrame, y_train: pd.DataFrame) -> None:
@@ -49,7 +49,7 @@ class Model:
 
     def calculate_f1(self, y_pred: pd.Series, y_test: pd.Series) -> int:
         f1 = f1_score(y_test, y_pred)
-        print(f"f1_score: {f1}")
+        print(f"f1_score test: {f1}")
         return f1
 
 
