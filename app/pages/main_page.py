@@ -22,7 +22,7 @@ def run():
         # st.write(result)
 
         route = [ast.literal_eval(el) for el in df.loc[df['route_id'] == id_route]['waypoints']][0]
-        map = make_map(route, 1)
+        map = make_map(route, 1, date, time)
 
         st.markdown(f"Route: {id_route}")
         folium_static(map)
