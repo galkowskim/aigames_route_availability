@@ -5,7 +5,7 @@ from app.pages import main_page
 
 app = MultiPage()
 
-st.title("Route availability classification")
+st.title("Route availability prediction")
 
 app.add_page('Main Page', main_page.run())
 
