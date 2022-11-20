@@ -85,9 +85,3 @@ def all_routes(lst, c=500):
 def make_map(path, points, c=500):
     return load_and_show_vil(path,
                              points=all_routes(points, c))
-
-
-if __name__ == '__main__':
-    make_map(f"VIL-2020-01-01-00_00Z.npz", [(52.2296756, 21.0122287), (52.406374, 16.9251681),
-                                            (54.35278083397538, 18.622417467903364),
-                                            (38.97855428469188, -77.02258444352366)], c=25)

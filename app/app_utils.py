@@ -6,6 +6,7 @@ import pandas as pd
 import folium
 import streamlit as st
 import numpy as np
+import pickle
 
 BOUNDARIES = [(21.9430, -67.5), (55.7765, -135)]
 VIL_THRESHOLD_COLORS = [
@@ -41,7 +42,7 @@ def make_map(points, result, date, time):
                         color=color).add_to(fmap)
     for i in range(len(points)):
         folium.CircleMarker(location=(points[i][0], points[i][1]),
-                            radius=2,
+                            radius=2.5,
                             weight=5,
                             color=color).add_to(fmap)
 
@@ -94,7 +95,9 @@ def get_all_points(points, c=50):
 
 
 def load_model():
-    return RandomForestClassifier()
+    file_path = Path(__file__).resolve()
+    data_path = file_path.parents[1].joinpath("data", "model", "finalized_model.sav")
+    return pickle.load(open(data_path, 'rb'))
 
 
 def load_data():
@@ -109,4 +112,4 @@ def load_weather_data(date, time):
     return matrix
 
 def validate(df, id_route):
-    return
+    return True if id_route in list(df.route_id.unique()) else False

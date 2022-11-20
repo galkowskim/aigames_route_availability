@@ -1,14 +1,19 @@
 import pandas as pd
 import lightgbm
+import numpy as np
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
 from typing import Tuple
 from sklearn.preprocessing import OneHotEncoder
 
+order = ['airport_KDFW', 'airport_KIAH', 'airport_KSEA', 'route_type',
+       'timestamp_hour', 'distance', 'no_of_waypoints', 'dayoftheweek',
+       'north', 'west', 'timestamp_month', 'timestamp_day']
+
 class Model:
 
     def __init__(self) -> None:
-        # self.model = xgboost.XGBClassifier()
         self.model = lightgbm.LGBMClassifier()
         self.ohe = OneHotEncoder()
         self.col = None
@@ -23,20 +28,38 @@ class Model:
         self.col = self.ohe.get_feature_names_out(['airport'])
         X_train = pd.DataFrame(X_train, columns=self.col, index=index)
         X_train = X_train.join(drop)
-
-        print(X_train.columns)
-        print(len(X_train.columns))
+        X_train = X_train[order]
         self.model.fit(X_train, y_train)
     
     def predict(self, X_test: pd.DataFrame) -> pd.Series:
-        obs = X_test[['observation_id']]
-        X_test = X_test.drop('observation_id', axis=1)
-        results = pd.Series(self.model.predict(X_test))
-        print(results)
+        index = X_test.index
+        drop = X_test.drop(['airport'], axis=1)
+        X_test = self.ohe.fit_transform(X_test[['airport']]).toarray()
+        self.col = self.ohe.get_feature_names_out(['airport'])
+        X_test = pd.DataFrame(X_test, columns=self.col, index=index)
+        X_test = X_test.join(drop)
+        X_test = X_test[order]
+        return pd.Series(self.model.predict(X_test))
+
+    def predict_and_save(self, x_test: pd.DataFrame) -> pd.Series:
+        obs = x_test[['observation_id']]
+        x_test = x_test.drop('observation_id', axis=1)
+        x_test = x_test[order]
+        results = pd.Series(self.model.predict(x_test))
         obs['results'] = results
+        obs['results'] = np.where(obs['results'] == 1, 'OPEN', 'CLOSED')
+        obs.rename({'results': 'status'}, inplace=True)
+        print(f'Saving results of testset into: results.csv')
         obs.to_csv('results.csv', index=False)
         return obs
-        
+
+    def predict_sample(self, sample: pd.DataFrame) -> pd.Series:
+        sample = sample[order]
+        for col in ["route_type", "timestamp_hour","distance", "no_of_waypoints",
+                    "dayoftheweek", "north", "west", "timestamp_month", "timestamp_day"]:
+            sample[col] = sample[col].astype(np.int)
+
+        return pd.Series(self.model.predict(sample))
 
     def onehot(self, X_test):
         index = X_test.index

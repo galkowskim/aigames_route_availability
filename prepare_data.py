@@ -24,7 +24,6 @@ routes = pd.read_csv(os.path.join(PATH_TO_DATA, 'route_definitions.csv'))
 train = pd.read_csv(os.path.join(PATH_TO_DATA, 'train_observations.csv'))
 train_availability = pd.read_csv(os.path.join(PATH_TO_DATA, 'train_availability.csv'))
 
-test_1000 = pd.read_csv(os.path.join(PATH_TO_DATA, 'test_observations_1000.csv'))
 test = pd.read_csv(os.path.join(PATH_TO_DATA, 'test_observations.csv'))
 
 # training data
@@ -44,8 +43,4 @@ df['timestamp_date'] = df.timestamp.str.split(' ').apply(lambda row: row[0][:5] 
 df['timestamp_hour'] = df.timestamp.str.split(' ').apply(lambda row: row[1][:2])
 df.to_csv(os.path.join(PATH_TO_SAVE, 'test.csv'), index=False)
 
-# test 1000 data
-df = pd.merge(test_1000, routes, on='route_id')
-df['timestamp_date'] = df.timestamp.str.split(' ').apply(lambda row: row[0][:5] + row[0][8:10] + row[0][7] + row[0][5:7])
-df['timestamp_hour'] = df.timestamp.str.split(' ').apply(lambda row: row[1][:2])
-df.to_csv(os.path.join(PATH_TO_SAVE, 'test_1000.csv'), index=False)
+

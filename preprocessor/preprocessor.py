@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 from typing import List, Tuple
@@ -9,26 +11,44 @@ class Preprocessor:
     def __init__(self, df) -> None:
         self.df = df
 
-    def preprocess_train(self, format: str = '%Y-%m-%d', waypoints: bool = False) -> pd.DataFrame:
+    def preprocess_train(self, waypoints: bool = False) -> pd.DataFrame:
             self._encode_status()
             self._encode_route_type()
             # self._one_hot_encode_airports()
-            self._apply_feature_engineering(format)
+            self._apply_feature_engineering()
             self._extract_info_from_date()
             self._drop_irrelevant_features(['waypoints', 'timestamp', 'route_id', 'timestamp_date', 'observation_id'])
             if waypoints:
                 self._drop_irrelevant_features([f'waypoint_{idx}' for idx in range(1, 21)])
             return self.df
 
-    def preprocess_test(self, format: str = '%Y-%m-%d') -> pd.DataFrame:
+    def preprocess_test(self) -> pd.DataFrame:
             self._encode_route_type()
             # self._one_hot_encode_airports()
-            self._apply_feature_engineering(format)
+            self._apply_feature_engineering()
             self._extract_info_from_date()
             self._drop_irrelevant_features(['waypoints', 'timestamp', 'route_id', 'timestamp_date'])
             # self._drop_irrelevant_features([f'waypoint_{idx}' for idx in range(1, 21)])
             return self.df
-            
+
+    def preprocess_sample(self) -> pd.DataFrame:
+        file_path = Path(__file__).resolve()
+        file_path = file_path.parents[1] / 'data' / 'statuses' / 'route_definitions.csv'
+        self.df = pd.merge(self.df, pd.read_csv(file_path), on='route_id')
+        self._encode_route_type()
+        self._apply_feature_engineering()
+        self._extract_info_from_date()
+        self._drop_irrelevant_features(['waypoints', 'route_id', 'timestamp_date'])
+        return pd.DataFrame(self.df.iloc[0]).T # doesnt matter if arrival or departure
+
+    def preprocess_sample_dont_drop_col(self):
+        file_path = Path(__file__).resolve()
+        file_path = file_path.parents[1] / 'data' / 'statuses' / 'route_definitions.csv'
+        self.df = pd.merge(self.df, pd.read_csv(file_path))
+        self._encode_route_type()
+        self._apply_feature_engineering()
+        self._extract_info_from_date()
+        return pd.DataFrame(self.df.iloc[0]).T  # doesnt matter if arrival or departure
     def _encode_status(self) -> None:
         self.df['status'] = np.where(self.df['status'] == "OPEN", 1, 0)
     
@@ -40,10 +60,10 @@ class Preprocessor:
     #     self.df.drop('airport', axis = 1, inplace=True)
     #     self.df = self.df.join(one_hot)
 
-    def _apply_feature_engineering(self, format) -> None:
+    def _apply_feature_engineering(self) -> None:
         self.df['distance'] = self.df['waypoints'].apply(lambda x: self.distance_fromlist(eval(x)))
         self.df['no_of_waypoints'] = self.df['waypoints'].apply(lambda x: len(eval(x)))
-        self.df['dayoftheweek'] = pd.to_datetime(self.df['timestamp_date'], format=format).dt.dayofweek
+        self.df['dayoftheweek'] = pd.to_datetime(self.df['timestamp_date']).dt.dayofweek
         
         self.df['waypoints'] = self.df['waypoints'].apply(lambda x: ast.literal_eval(x))
         self.df['north'] = np.where((self.df['route_type']== 0) & (self.df.waypoints.apply(lambda x: x[1][0] - x[0][0]) >= 0), 1,
