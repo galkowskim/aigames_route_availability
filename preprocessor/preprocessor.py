@@ -24,7 +24,7 @@ class Preprocessor:
             # self._one_hot_encode_airports()
             self._apply_feature_engineering()
             self._extract_info_from_date()
-            self._drop_irrelevant_features(['waypoints', 'timestamp', 'route_id', 'timestamp_date', 'observation_id'])
+            self._drop_irrelevant_features(['waypoints', 'timestamp', 'route_id', 'timestamp_date'])
             # self._drop_irrelevant_features([f'waypoint_{idx}' for idx in range(1, 21)])
             return self.df
             

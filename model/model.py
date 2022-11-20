@@ -27,7 +27,7 @@ class Model:
         self.model.fit(X_train, y_train)
     
     def predict(self, X_test: pd.DataFrame) -> pd.Series:
-        self.model.predict(X_test)
+        return self.model.predict(X_test)
         
 
     def onehot(self, X_test):
