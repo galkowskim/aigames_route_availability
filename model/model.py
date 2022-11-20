@@ -23,11 +23,19 @@ class Model:
         self.col = self.ohe.get_feature_names_out(['airport'])
         X_train = pd.DataFrame(X_train, columns=self.col, index=index)
         X_train = X_train.join(drop)
-        
+
+        print(X_train.columns)
+        print(len(X_train.columns))
         self.model.fit(X_train, y_train)
     
     def predict(self, X_test: pd.DataFrame) -> pd.Series:
-        return self.model.predict(X_test)
+        obs = X_test[['observation_id']]
+        X_test = X_test.drop('observation_id', axis=1)
+        results = pd.Series(self.model.predict(X_test))
+        print(results)
+        obs['results'] = results
+        obs.to_csv('results.csv', index=False)
+        return obs
         
 
     def onehot(self, X_test):
