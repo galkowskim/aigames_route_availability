@@ -2,15 +2,16 @@ import ast
 import streamlit as st
 import pandas as pd
 import numpy as np
+import datetime
 from streamlit_folium import folium_static
 from app.app_utils import load_model, make_map, load_data, validate, get_all_points
 from preprocessor.preprocessor import Preprocessor
 
 def run():
-    st.title("VIL map")
+    st.markdown("Detect whether you flight is available")
     id_route = st.text_input("Route id")
-    date = st.date_input("Date")
-    time = st.time_input("Time")
+    date = st.date_input("Date", value=datetime.date(2020, 1, 1))
+    time = st.time_input("Time", value=datetime.time(0, 00))
     button = st.button("Submit")
     try:
         model = load_model()
