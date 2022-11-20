@@ -1,5 +1,6 @@
 import pandas as pd
 import lightgbm
+import numpy as np
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
@@ -31,11 +32,24 @@ class Model:
         self.model.fit(X_train, y_train)
     
     def predict(self, X_test: pd.DataFrame) -> pd.Series:
+        index = X_test.index
+        drop = X_test.drop(['airport'], axis=1)
+        X_test = self.ohe.fit_transform(X_test[['airport']]).toarray()
+        self.col = self.ohe.get_feature_names_out(['airport'])
+        X_test = pd.DataFrame(X_test, columns=self.col, index=index)
+        X_test = X_test.join(drop)
+        X_test = X_test[order]
+        return pd.Series(self.model.predict(X_test))
+
+    def predict_and_save(self, X_test: pd.DataFrame) -> pd.Series:
         obs = X_test[['observation_id']]
         X_test = X_test.drop('observation_id', axis=1)
         X_test = X_test[order]
         results = pd.Series(self.model.predict(X_test))
         obs['results'] = results
+        obs['results'] = np.where(obs['results'] == 1, 'OPEN', 'CLOSED')
+        obs.rename({'results': 'status'}, inplace=True)
+        print(f'Saving results of testset into: results.csv')
         obs.to_csv('results.csv', index=False)
         return obs
 
